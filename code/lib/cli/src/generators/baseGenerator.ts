@@ -74,7 +74,8 @@ const getFrameworkDetails = (
     };
   }
 
-  if (renderer === 'cra') {
+  // TODO: Refactor when we remove the legacy renderer support
+  if (renderer === 'cra' || renderer === 'nextjs') {
     return {
       packages: [rendererPackage],
       framework: rendererPackagePath,
