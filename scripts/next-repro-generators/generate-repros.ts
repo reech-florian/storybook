@@ -26,7 +26,7 @@ const sbInit = async (cwd: string) => {
   const sbCliBinaryPath = join(__dirname, `../../code/lib/cli/bin/index.js`);
   console.log(`🎁 Installing storybook`);
   const env = { STORYBOOK_DISABLE_TELEMETRY: 'true' };
-  await runCommand(`${sbCliBinaryPath} init`, { cwd, env });
+  await runCommand(`${sbCliBinaryPath} init --yes`, { cwd, env });
 };
 
 const LOCAL_REGISTRY_URL = 'http://localhost:6000';
@@ -54,12 +54,15 @@ const addStorybook = async (baseDir: string, localRegistry: boolean) => {
 
   const packageManager = JsPackageManagerFactory.getPackageManager(false, tmpDir);
   if (localRegistry) {
+    console.log('local registry');
     await withLocalRegistry(packageManager, async () => {
       packageManager.addPackageResolutions(storybookVersions);
 
+      console.log('initializing after registry');
       await sbInit(tmpDir);
     });
   } else {
+    console.log('initializing WITHOUT registry');
     await sbInit(tmpDir);
   }
   await rename(tmpDir, afterDir);
