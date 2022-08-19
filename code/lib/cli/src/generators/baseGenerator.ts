@@ -109,8 +109,8 @@ const getFrameworkDetails = (
 
 const stripVersions = (addons: string[]) => addons.map((addon) => getPackageDetails(addon)[0]);
 
-const hasInteractiveStories = (framework: SupportedRenderers) =>
-  ['cra', 'react', 'angular', 'preact', 'svelte', 'vue', 'vue3', 'html'].includes(framework);
+const hasInteractiveStories = (renderer: SupportedRenderers) =>
+  ['react', 'angular', 'preact', 'svelte', 'vue', 'vue3', 'html'].includes(renderer);
 
 export async function baseGenerator(
   packageManager: JsPackageManager,
@@ -134,6 +134,16 @@ export async function baseGenerator(
     ...options,
   };
 
+  const {
+    packages: frameworkPackages,
+    type,
+    rendererId,
+    // @ts-ignore
+    renderer: rendererInclude, // deepscan-disable-line UNUSED_DECL
+    framework: frameworkInclude,
+    builder: builderInclude,
+  } = getFrameworkDetails(input, builder, pnp);
+
   // added to main.js
   const addons = [
     '@storybook/addon-links',
@@ -147,7 +157,7 @@ export async function baseGenerator(
     ...extraAddonPackages,
   ];
 
-  if (hasInteractiveStories(input)) {
+  if (hasInteractiveStories(rendererId)) {
     addons.push('@storybook/addon-interactions');
     addonPackages.push('@storybook/addon-interactions', '@storybook/testing-library');
   }
@@ -161,15 +171,6 @@ export async function baseGenerator(
   const installedDependencies = new Set(
     Object.keys({ ...packageJson.dependencies, ...packageJson.devDependencies })
   );
-  const {
-    packages: frameworkPackages,
-    type,
-    rendererId,
-    // @ts-ignore
-    renderer: rendererInclude, // deepscan-disable-line UNUSED_DECL
-    framework: frameworkInclude,
-    builder: builderInclude,
-  } = getFrameworkDetails(input, builder, pnp);
 
   // TODO: We need to start supporting this at some point
   if (type === 'renderer') {
